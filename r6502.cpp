@@ -358,9 +358,19 @@ void r6502::setFlag(FLAGS f, bool value)
 
 uint8_t r6502::ADC()
 {
-	//Affects Flags : N V Z C
+	//AFFECTS FLAGS: N V Z C
+
 	fetch();
-	A + fetched;
+	uint16_t temp = (uint16_t)A + (uint16_t)fetched + (uint16_t)getFlag(C);
+
+	setFlag(Z, (temp & 0x00FF) == 0);
+	setFlag(C, temp > 255);
+	setFlag(N, temp & 0x80);
+	setFlag(V, (~((uint16_t)A ^ (uint16_t)fetched) & ((uint16_t)A ^ (uint16_t)temp)) & 0x0080);
+
+	A = temp & 0x00FF;
+
+	return 1;
 }
 uint8_t r6502::AND()
 {
@@ -369,6 +379,16 @@ uint8_t r6502::AND()
 	setFlag(Z, A == 0x00);
 	setFlag(N, A & 0x80);
 	return 1;
+}
+uint8_t r6502::ASL()
+{
+	//AFFECTS FLAGS : N Z C
+	fetch();
+	A = A << 1;
+	setFlag(N, A & 0x80);
+	setFlag(Z, A == 0x00);
+	setFlag(C, A > 0xff);
+
 }
 uint8_t r6502::BCS()
 {
