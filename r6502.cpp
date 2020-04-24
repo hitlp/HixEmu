@@ -393,6 +393,17 @@ uint8_t r6502::ASL()
 
 	return 0;
 }
+uint8_t r6502::BIT()
+{
+	//AFFECTS FLAGS: N V Z
+
+	fetch();
+	uint8_t temp = A & fetched;
+	setFlag(Z, (temp & 0x00) == 0x00);
+	setFlag(N, fetched & (1 << 7));
+	setFlag(V, fetched & (1 << 6));
+	return 0;
+}
 uint8_t r6502::BCS()
 {
 	if (getFlag(C) == true)
@@ -407,3 +418,5 @@ uint8_t r6502::BCS()
 	}
 	return 0;
 }
+
+
